@@ -57,7 +57,11 @@ Apply all migrations:
 
 ```bash
 uv run --env-file .env --project apps/api \
-  alembic -c apps/api/alembic.ini upgrade head
+  alembic -c apps/api/alembic.ini \
+  revision \
+  --autogenerate \
+  --rev-id <next-three-digit-revision> \
+  -m "<message>"
 ```
 
 Verify the current revision:

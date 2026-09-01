@@ -5,6 +5,7 @@ from sqlalchemy import Connection, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from loredeck.core.config import get_settings
+from loredeck.db import models as database_models  # noqa: F401
 from loredeck.db.base import Base
 
 config = context.config

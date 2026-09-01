@@ -70,6 +70,15 @@ Use absolute imports from `loredeck`.
 * Do not read environment variables directly inside domain or application code.
 * Never hard-code secrets or environment-specific URLs.
 
+## Alembic Revision Naming
+
+- Alembic revision IDs must be sequential three-digit numbers.
+- Migration filenames must start with the revision ID.
+- Examples: `001_create_decks_and_cards.py`, `002_add_readings.py`.
+- Always pass the revision explicitly using `--rev-id`.
+- Inspect the latest migration before selecting the next revision number.
+- Do not reuse or renumber an existing committed revision.
+
 ## Testing
 
 * Prefer unit tests for domain rules and application use cases.
