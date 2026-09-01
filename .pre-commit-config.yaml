@@ -1,0 +1,67 @@
+minimum_pre_commit_version: "4.0.0"
+
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args:
+          - --maxkb=1000
+
+      - id: check-case-conflict
+
+      - id: check-merge-conflict
+
+      - id: check-toml
+
+      - id: check-yaml
+        args:
+          - --unsafe
+
+      - id: end-of-file-fixer
+
+      - id: mixed-line-ending
+        args:
+          - --fix=lf
+
+      - id: trailing-whitespace
+
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: backend-ruff-check
+        name: Backend Ruff check
+        entry: uv run --project apps/api ruff check --fix apps/api
+        language: system
+        pass_filenames: false
+        files: ^apps/api/.*\.py$
+
+      - id: backend-ruff-format
+        name: Backend Ruff format
+        entry: uv run --project apps/api ruff format --check apps/api
+        language: system
+        pass_filenames: false
+        files: ^apps/api/.*\.py$
+
+      - id: backend-pyright
+        name: Backend Pyright
+        entry: uv run --project apps/api pyright
+        language: system
+        pass_filenames: false
+        files: ^apps/api/.*\.py$
+        stages:
+          - pre-push
+
+      - id: backend-tests
+        name: Backend tests
+        entry: uv run --project apps/api pytest apps/api/tests
+        language: system
+        pass_filenames: false
+        files: ^apps/api/.*\.py$
+        stages:
+          - pre-push
