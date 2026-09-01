@@ -5,39 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa29b73c-4cae-4fbc-9311-e9fba399e61e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.agents/skills/backend-feature/SKILL.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.agents/skills/backend-migration/SKILL.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/LoreDeck.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.pre-commit-config.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/AGENTS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/alembic.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/migrations/env.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/migrations/script.py.mako" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/pyproject.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/api/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/api/dependencies.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/api/router.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/core/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/db/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/db/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/db/session.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/src/loredeck/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/tests/integration/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/tests/integration/test_database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/tests/integration/test_readiness.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/tests/test_health.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/api/uv.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/web/AGENTS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.pre-commit-config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.pre-commit-config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,23 +31,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.165789955933013" />
-      <entry key="MS500" value="2.6948276188566407" />
-      <entry key="S2" value="5.634496926846427" />
-      <entry key="S5" value="11.642283584262495" />
-      <entry key="S10" value="18.96205815191733" />
-      <entry key="S30" value="30.6402079490667" />
-      <entry key="S60" value="37.12680763703852" />
-      <entry key="M2" value="42.06170133232056" />
-      <entry key="M5" value="45.921547148738675" />
-      <entry key="M10" value="47.41223772642534" />
-      <entry key="M15" value="48.03760305786446" />
-      <entry key="M30" value="50.623501902650695" />
-      <entry key="H1" value="62.16100210269014" />
-      <entry key="H2" value="86.4133209342537" />
-      <entry key="H4" value="113.31894590259002" />
-      <entry key="D1" value="151.02457232351128" />
-      <entry key="W1" value="159.51513511454112" />
+      <entry key="MS100" value="2.093707650993472" />
+      <entry key="MS500" value="5.012539675767369" />
+      <entry key="S2" value="7.53482933332129" />
+      <entry key="S5" value="8.4914988810299" />
+      <entry key="S10" value="9.802771941756415" />
+      <entry key="S30" value="14.544301702201842" />
+      <entry key="S60" value="21.17579301953186" />
+      <entry key="M2" value="36.560339686525026" />
+      <entry key="M5" value="64.31274652407319" />
+      <entry key="M10" value="81.00389104951773" />
+      <entry key="M15" value="87.94677290270742" />
+      <entry key="M30" value="97.43281762433749" />
+      <entry key="H1" value="112.34354764964512" />
+      <entry key="H2" value="138.31368042582255" />
+      <entry key="H4" value="166.39026897167818" />
+      <entry key="D1" value="205.61472379589986" />
+      <entry key="W1" value="214.4537398813309" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -101,23 +69,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.1486001503813215" />
-      <entry key="MS500" value="2.684372122286944" />
-      <entry key="S2" value="5.628296698836171" />
-      <entry key="S5" value="11.636709247983742" />
-      <entry key="S10" value="18.95736036389471" />
-      <entry key="S30" value="30.63749588397435" />
-      <entry key="S60" value="37.125058142733145" />
-      <entry key="M2" value="42.060662664751916" />
-      <entry key="M5" value="45.92107806607893" />
-      <entry key="M10" value="47.41199067461895" />
-      <entry key="M15" value="48.03741979459187" />
-      <entry key="M30" value="50.62329399126917" />
-      <entry key="H1" value="62.16069239448612" />
-      <entry key="H2" value="86.41299695428029" />
-      <entry key="H4" value="113.31870034489327" />
-      <entry key="D1" value="151.0245130601769" />
-      <entry key="W1" value="159.51512607448228" />
+      <entry key="MS100" value="2.0480861595679154" />
+      <entry key="MS500" value="4.9875962107007865" />
+      <entry key="S2" value="7.524699705229412" />
+      <entry key="S5" value="8.484830950775136" />
+      <entry key="S10" value="9.789967861426714" />
+      <entry key="S30" value="14.527281271797309" />
+      <entry key="S60" value="21.163288006923246" />
+      <entry key="M2" value="36.55248924042471" />
+      <entry key="M5" value="64.30898512539174" />
+      <entry key="M10" value="81.0018618070175" />
+      <entry key="M15" value="87.94536940599784" />
+      <entry key="M30" value="97.43199176124054" />
+      <entry key="H1" value="112.34293179608446" />
+      <entry key="H2" value="138.3132031311548" />
+      <entry key="H4" value="166.3899455242275" />
+      <entry key="D1" value="205.61465109987216" />
+      <entry key="W1" value="214.45372890518826" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -192,7 +160,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788251298283</updated>
-      <workItem from="1788251299436" duration="10295000" />
+      <workItem from="1788251299436" duration="10611000" />
     </task>
     <servers />
   </component>
