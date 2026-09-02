@@ -35,6 +35,10 @@ class CardModel(Base):
         Integer,
         nullable=True,
     )
+    image_path: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
     attributes: Mapped[dict[str, Any]] = mapped_column(
         JSONB,
         nullable=False,
