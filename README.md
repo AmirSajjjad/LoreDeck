@@ -1,6 +1,6 @@
 # LoreDeck
 
-LoreDeck is a monorepo for a card-reading product. The repository is currently establishing its shared backend foundation; the service and frontend packages exist, but application features are not yet implemented.
+LoreDeck is a monorepo for a card-reading product. Its first public Game API can draw one-card or three-card readings from active cards in a selected deck. Story generation, persisted readings, Admin, Telegram, AI integration, and the frontend remain unimplemented.
 
 ## Repository structure
 
@@ -10,7 +10,7 @@ LoreDeck is a monorepo for a card-reading product. The repository is currently e
 - `apps/backend/alembic`: the single migration environment and history for all backend services.
 - `.agents/skills`: repository-specific Codex workflows.
 
-The planned `loredeck.game` and `loredeck.admin` packages will host separate FastAPI applications. `loredeck.telegram_bot` and `loredeck.ai` are also placeholders pending implementation choices. The frontend will consume backend APIs and remains independent from Python ORM models.
+`loredeck.game` exposes `POST /readings`. The planned `loredeck.admin`, `loredeck.telegram_bot`, and `loredeck.ai` packages remain placeholders pending implementation choices. The frontend will consume backend APIs and remains independent from Python ORM models.
 
 ## Confirmed technologies
 
@@ -44,6 +44,14 @@ uv run ruff format --check .
 uv run pyright
 uv run pytest
 ```
+
+Start the Game API from `apps/backend`:
+
+```bash
+uv run uvicorn loredeck.game.main:app --reload
+```
+
+The public `POST /readings` endpoint accepts a deck ID and either `one_card` or `three_card`. It returns randomly selected active cards without persisting the reading.
 
 Apply the shared migration history after configuring PostgreSQL:
 
