@@ -1,94 +1,18 @@
 # LoreDeck Repository Instructions
 
-## Project
+LoreDeck is a monorepo for a card-reading product. `apps/backend` is the Python workspace for the Game API, Admin API, Telegram bot, AI integration, and shared infrastructure; `apps/frontend` is the independent client application.
 
-LoreDeck is a browser-based card reading platform.
+## Scope and boundaries
 
-The repository is a monorepo containing:
+- This file applies repository-wide. A nested `AGENTS.md` adds or overrides instructions for its subtree; follow the nearest applicable file.
+- Backend services share SQLAlchemy models and database infrastructure in `apps/backend/src/loredeck/shared/db` and one Alembic history in `apps/backend/alembic`.
+- Keep Game, Admin, Telegram bot, and AI behavior within their respective service namespaces. Put only genuinely cross-service infrastructure and data definitions in `loredeck.shared`.
+- The frontend consumes backend API contracts and does not import or mirror Python ORM models.
 
-- `apps/api`: FastAPI backend
-- `apps/web`: Vue frontend, planned for a later phase
-- `docs`: architecture and product documentation
-- `.agents/skills`: repository-specific Codex skills
+## Workflow
 
-The current development focus is the backend MVP.
-
-## Architecture
-
-The backend is a modular monolith with clean boundaries.
-
-Each business module may contain:
-
-- `domain`: business entities, value objects, rules, and errors
-- `application`: use cases and ports
-- `infrastructure`: database and external-provider implementations
-- `presentation`: HTTP routes and schemas
-
-Dependencies must point inward:
-
-- presentation depends on application
-- infrastructure implements application ports
-- application depends on domain
-- domain must not depend on FastAPI, SQLAlchemy, or external services
-
-Do not create layers, abstractions, repositories, or interfaces without a
-concrete use case.
-
-## Repository Rules
-
-- Keep backend code under `apps/api`.
-- Keep frontend code under `apps/web`.
-- Do not commit secrets or `.env`.
-- Commit `uv.lock`.
-- Do not commit virtual environments, caches, coverage output, or generated
-  build artifacts.
-- Preserve existing user changes.
-- Keep changes scoped to the requested task.
-- Do not add speculative functionality.
-- Update documentation when an architectural or operational decision changes.
-
-## Backend Commands
-
-Run backend commands from the repository root:
-
-```bash
-uv sync --project apps/api
-uv run --project apps/api ruff check apps/api
-uv run --project apps/api ruff format --check apps/api
-uv run --project apps/api pyright
-uv run --project apps/api pytest apps/api/tests
-````
-
-Run the API locally:
-
-```bash
-uv run --project apps/api uvicorn loredeck.main:app \
-  --app-dir apps/api/src \
-  --reload
-```
-
-## Verification
-
-A backend change is complete when all relevant checks pass:
-
-```bash
-uv run --project apps/api ruff check apps/api
-uv run --project apps/api ruff format --check apps/api
-uv run --project apps/api pyright
-uv run --project apps/api pytest apps/api/tests
-```
-
-Report:
-
-* files changed
-* behavior implemented
-* commands executed
-* test results
-* any remaining limitation or follow-up
-
-## Skills
-
-Use repository skills when their descriptions match the task.
-
-Skills provide task workflows. This file remains the source of repository-wide
-rules.
+- Inspect neighboring code, tests, configuration, and the applicable instructions before editing. Preserve existing conventions and unrelated user changes.
+- Keep changes within the requested scope. When behavior changes, update its tests and relevant documentation.
+- Do not edit generated artifacts or existing migration history without a specific reason.
+- Run commands from `apps/backend` unless a command explicitly uses repository-root paths. Confirmed backend checks are `uv run ruff check .`, `uv run ruff format --check .`, `uv run pyright`, and `uv run pytest`.
+- Report changed files, verification performed, and any pre-existing or remaining blockers.
