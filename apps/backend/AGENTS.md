@@ -4,7 +4,7 @@ These instructions apply under `apps/backend` in addition to the repository-leve
 
 ## Layout and ownership
 
-- Python sources use the `src` layout and the `loredeck` namespace. Use absolute imports such as `from loredeck.shared.db...`; do not import through `src.loredeck`.
+- Python sources use the `src` layout and the `loredeck` namespace. Use absolute imports such as `from loredeck.shared...`; do not import through `src.loredeck`.
 - `loredeck.game` owns the player-facing FastAPI service; `loredeck.admin` owns the administrative FastAPI service; `loredeck.telegram_bot` owns Telegram integration; `loredeck.ai` owns the eventual AI integration; `loredeck.shared` contains only cross-service infrastructure and data definitions.
 - Shared SQLAlchemy models live in `src/loredeck/shared/models`; shared metadata, engine, session factory, and session dependency live in `src/loredeck/shared/database.py`.
 - All services use the single Alembic environment in `alembic` with configuration in `alembic.ini`. Never create a service-specific migration history.
