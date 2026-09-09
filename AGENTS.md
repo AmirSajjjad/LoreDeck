@@ -5,7 +5,7 @@ LoreDeck is a monorepo for a card-reading product. `apps/backend` is the Python 
 ## Scope and boundaries
 
 - This file applies repository-wide. A nested `AGENTS.md` adds or overrides instructions for its subtree; follow the nearest applicable file.
-- Backend services share SQLAlchemy models and database infrastructure in `apps/backend/src/loredeck/shared/db` and one Alembic history in `apps/backend/alembic`.
+- Backend services share SQLAlchemy models in `apps/backend/src/loredeck/shared/models`, database infrastructure in `apps/backend/src/loredeck/shared/database.py`, and one Alembic history in `apps/backend/alembic`.
 - Keep Game, Admin, Telegram bot, and AI behavior within their respective service namespaces. Put only genuinely cross-service infrastructure and data definitions in `loredeck.shared`.
 - The frontend consumes backend API contracts and does not import or mirror Python ORM models.
 

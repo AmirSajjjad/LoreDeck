@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Integer, String, Text, true
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.loredeck import Base
+from loredeck.shared.database import Base
 
 
 class DeckModel(Base):

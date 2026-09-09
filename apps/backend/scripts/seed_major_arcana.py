@@ -7,8 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.loredeck.shared import CardModel, DeckModel
-from src.loredeck.shared.db.session import get_session_factory
+from loredeck.shared.database import get_session_factory
+from loredeck.shared.models import CardModel, DeckModel
 
 
 class CardSeedData(BaseModel):
@@ -32,7 +32,7 @@ class DeckSeedData(BaseModel):
 
 
 def load_seed_data() -> DeckSeedData:
-    data_file = Path(__file__).resolve().with_name("seed_major_arcana.json")
+    data_file = Path(__file__).resolve().parents[1] / "data" / "seeds" / "major_arcana.json"
 
     with data_file.open(encoding="utf-8") as file:
         raw_data = json.load(file)
@@ -45,9 +45,7 @@ async def upsert_deck(
     seed_data: DeckSeedData,
 ) -> tuple[DeckModel, bool]:
     result = await session.execute(
-        select(DeckModel)
-        .where(DeckModel.title == seed_data.title)
-        .limit(1)
+        select(DeckModel).where(DeckModel.title == seed_data.title).limit(1)
     )
     deck = result.scalar_one_or_none()
 
@@ -131,7 +129,7 @@ async def seed_major_arcana() -> None:
 
     deck_action = "ایجاد شد" if deck_created else "به‌روزرسانی شد"
 
-    print(f'مجموعه کارت «{seed_data.title}» {deck_action}.')
+    print(f"مجموعه کارت «{seed_data.title}» {deck_action}.")
     print(f"تعداد کارت‌های ایجادشده: {created_count}")
     print(f"تعداد کارت‌های به‌روزرسانی‌شده: {updated_count}")
     print(f"مجموع کارت‌های فایل: {len(seed_data.cards)}")

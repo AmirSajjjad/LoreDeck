@@ -4,19 +4,18 @@ from alembic import context
 from sqlalchemy import Connection, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from src.loredeck import get_settings
-from src.loredeck import models as database_models  # noqa: F401
-from src.loredeck import Base
+from loredeck.shared import models as database_models  # noqa: F401
+from loredeck.shared.config import get_settings
+from loredeck.shared.database import Base
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-settings = get_settings()
 config.set_main_option(
     "sqlalchemy.url",
-    str(settings.database_url),
+    str(get_settings().database_url).replace("%", "%%"),
 )
 
 target_metadata = Base.metadata

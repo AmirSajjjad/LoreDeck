@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, true
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.loredeck.shared.db.base import Base
+from loredeck.shared.database import Base
 
 
 class CardModel(Base):

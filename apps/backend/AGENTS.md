@@ -6,7 +6,7 @@ These instructions apply under `apps/backend` in addition to the repository-leve
 
 - Python sources use the `src` layout and the `loredeck` namespace. Use absolute imports such as `from loredeck.shared.db...`; do not import through `src.loredeck`.
 - `loredeck.game` owns the player-facing FastAPI service; `loredeck.admin` owns the administrative FastAPI service; `loredeck.telegram_bot` owns Telegram integration; `loredeck.ai` owns the eventual AI integration; `loredeck.shared` contains only cross-service infrastructure and data definitions.
-- Shared SQLAlchemy models live in `src/loredeck/shared/db/models`; shared metadata, engine, session factory, and session dependencies live in `src/loredeck/shared/db`.
+- Shared SQLAlchemy models live in `src/loredeck/shared/models`; shared metadata, engine, session factory, and session dependency live in `src/loredeck/shared/database.py`.
 - All services use the single Alembic environment in `alembic` with configuration in `alembic.ini`. Never create a service-specific migration history.
 
 ## Backend conventions
@@ -26,4 +26,5 @@ These instructions apply under `apps/backend` in addition to the repository-leve
 ## Migrations
 
 - Inspect model registration, current heads, and neighboring revisions before changing schema. Update the shared model, generate exactly one revision in `alembic/versions`, and manually review upgrade and downgrade operations, constraint names, defaults, and existing-data safety.
+- Name revisions `{number}-{YYYYMMDD}-{lowercase_snake_case_description}.py`, beginning with a sequential three-digit number. Generate with an explicit `--rev-id` so `alembic.ini` can apply the date and slug format.
 - Do not modify an already-applied revision unless explicitly requested. Update affected integration tests and seed logic with schema changes.
