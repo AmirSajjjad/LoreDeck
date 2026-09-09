@@ -1,7 +1,8 @@
 from functools import lru_cache
 
-from pydantic import PostgresDsn
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class Settings(BaseSettings):
@@ -11,8 +12,24 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: PostgresDsn
+    database_host: str
+    database_port: int
+    database_name: str
+    database_user: str
+    database_password: SecretStr
+    database_driver: str = "postgresql+asyncpg"
     database_echo: bool = False
+
+    @property
+    def database_url(self) -> URL:
+        return URL.create(
+            drivername=self.database_driver,
+            username=self.database_user,
+            password=self.database_password.get_secret_value(),
+            host=self.database_host,
+            port=self.database_port,
+            database=self.database_name,
+        )
 
 
 @lru_cache

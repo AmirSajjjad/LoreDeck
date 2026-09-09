@@ -1,1 +1,29 @@
-# COMING SOON...
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        exclude: ^apps/backend/static/
+
+  - repo: local
+    hooks:
+      - id: backend-ruff-check
+        name: backend Ruff lint
+        entry: uv run --project apps/backend --no-sync ruff check --config apps/backend/pyproject.toml --force-exclude
+        language: system
+        types: [python]
+        files: ^apps/backend/(alembic|scripts|src|tests)/
+      - id: backend-ruff-format
+        name: backend Ruff format check
+        entry: uv run --project apps/backend --no-sync ruff format --check --config apps/backend/pyproject.toml --force-exclude
+        language: system
+        types: [python]
+        files: ^apps/backend/(alembic|scripts|src|tests)/
+
+# apps/frontend has no package manifest, lockfile, or configured lint/format tools yet.
