@@ -1,5 +1,17 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { RouterLink, useRouter } from 'vue-router'
+import BaseButton from '@/components/common/BaseButton.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const router = useRouter()
+const { currentUser, isAuthenticated } = storeToRefs(auth)
+
+function logout(): void {
+  auth.logout()
+  void router.push({ name: 'home' })
+}
 </script>
 
 <template>
@@ -36,17 +48,45 @@ import { RouterLink } from 'vue-router'
             <RouterLink
               class="block rounded-control px-3 py-2 text-muted transition-colors hover:bg-surface-secondary hover:text-foreground"
               active-class="bg-surface-secondary text-foreground"
+              :to="{ name: 'reading-create' }"
+              >خوانش تازه</RouterLink
+            >
+          </li>
+          <li v-if="!isAuthenticated">
+            <RouterLink
+              class="block rounded-control px-3 py-2 text-muted transition-colors hover:bg-surface-secondary hover:text-foreground"
+              active-class="bg-surface-secondary text-foreground"
               :to="{ name: 'sign-in' }"
               >ورود</RouterLink
             >
           </li>
-          <li>
+          <li v-if="!isAuthenticated">
             <RouterLink
               class="block rounded-control border border-accent/70 px-3 py-2 font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-contrast"
               :to="{ name: 'sign-up' }"
               >ثبت‌نام</RouterLink
             >
           </li>
+          <template v-else>
+            <li>
+              <RouterLink
+                class="block max-w-40 truncate rounded-control px-3 py-2 text-muted transition-colors hover:bg-surface-secondary hover:text-foreground"
+                active-class="bg-surface-secondary text-foreground"
+                :to="{ name: 'profile' }"
+                :title="currentUser?.name || currentUser?.username || 'پروفایل'"
+                >{{ currentUser?.name || currentUser?.username || 'پروفایل' }}</RouterLink
+              >
+            </li>
+            <li>
+              <RouterLink
+                class="block rounded-control px-3 py-2 text-muted transition-colors hover:bg-surface-secondary hover:text-foreground"
+                active-class="bg-surface-secondary text-foreground"
+                :to="{ name: 'reading-history' }"
+                >تاریخچه</RouterLink
+              >
+            </li>
+            <li><BaseButton variant="ghost" @click="logout">خروج</BaseButton></li>
+          </template>
         </ul>
       </nav>
     </div>

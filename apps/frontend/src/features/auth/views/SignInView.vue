@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/components/common/PlaceholderPage.vue'
+import { useRoute, useRouter } from 'vue-router'
+import SignInForm from '@/features/auth/components/SignInForm.vue'
+import { getSafeRedirect } from '@/features/auth/utils/redirect'
+
+const route = useRoute()
+const router = useRouter()
+
+function navigateAfterAuthentication(): void {
+  void router.replace(getSafeRedirect(route.query.redirect))
+}
 </script>
 
 <template>
-  <PlaceholderPage
-    title="ورود"
-    description="فرم ورود در مرحلهٔ مربوط به احراز هویت اضافه می‌شود."
-  />
+  <SignInForm @authenticated="navigateAfterAuthentication" />
 </template>

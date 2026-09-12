@@ -8,6 +8,7 @@ import type {
 
 const MALFORMED_VALIDATION_MESSAGE = 'پاسخ اعتبارسنجی سرور قابل پردازش نیست.'
 const UNMAPPED_VALIDATION_MESSAGE = 'بخشی از اطلاعات واردشده معتبر نیست.'
+const INVALID_FIELD_MESSAGE = 'مقدار واردشده برای این فیلد معتبر نیست.'
 
 const validationEnvelopeSchema = z.object({ detail: z.array(z.unknown()) })
 const validationIssueSchema = z.object({
@@ -38,6 +39,13 @@ function bodyLocationToField(location: ValidationLocationSegment[]): string | un
   return field
 }
 
+function getFieldMessage(code: string): string {
+  if (code === 'missing') return 'وارد کردن این فیلد الزامی است.'
+  if (code === 'string_too_short') return 'مقدار واردشده کوتاه‌تر از حد مجاز است.'
+  if (code === 'string_too_long') return 'مقدار واردشده طولانی‌تر از حد مجاز است.'
+  return INVALID_FIELD_MESSAGE
+}
+
 export function normalizeFastApiValidationErrors(payload: unknown): NormalizedValidationErrors {
   const envelope = validationEnvelopeSchema.safeParse(payload)
   if (!envelope.success) {
@@ -58,7 +66,7 @@ export function normalizeFastApiValidationErrors(payload: unknown): NormalizedVa
     const issue = parsedIssue.data
     const field = bodyLocationToField(issue.loc)
     if (field) {
-      fieldErrors.push({ field, message: issue.msg, code: issue.type })
+      fieldErrors.push({ field, message: getFieldMessage(issue.type), code: issue.type })
     } else {
       unmappedErrors.push({ location: issue.loc, message: issue.msg, code: issue.type })
     }
