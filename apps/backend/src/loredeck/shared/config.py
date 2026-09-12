@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     database_password: SecretStr
     database_driver: str = "postgresql+asyncpg"
     database_echo: bool = False
+    debug: bool = False
 
     @property
     def database_url(self) -> URL:
