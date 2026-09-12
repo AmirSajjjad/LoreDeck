@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #111827;
+  color: #f9fafb;
+}
+
+body,
+#app {
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
