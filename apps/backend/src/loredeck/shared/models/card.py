@@ -1,10 +1,13 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, true
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from loredeck.shared.database import Base
+
+if TYPE_CHECKING:
+    from loredeck.shared.models.user_card_history import UserCardHistoryModel
 
 
 class CardModel(Base):
@@ -50,4 +53,16 @@ class CardModel(Base):
         nullable=False,
         default=True,
         server_default=true(),
+    )
+    first_position_histories: Mapped[list["UserCardHistoryModel"]] = relationship(
+        back_populates="first_card",
+        foreign_keys="UserCardHistoryModel.first_card_id",
+    )
+    second_position_histories: Mapped[list["UserCardHistoryModel"]] = relationship(
+        back_populates="second_card",
+        foreign_keys="UserCardHistoryModel.second_card_id",
+    )
+    third_position_histories: Mapped[list["UserCardHistoryModel"]] = relationship(
+        back_populates="third_card",
+        foreign_keys="UserCardHistoryModel.third_card_id",
     )

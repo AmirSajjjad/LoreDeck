@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Boolean, Integer, String, Text, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from loredeck.shared.database import Base
+
+if TYPE_CHECKING:
+    from loredeck.shared.models.user_card_history import UserCardHistoryModel
 
 
 class DeckModel(Base):
@@ -25,4 +30,7 @@ class DeckModel(Base):
         nullable=False,
         default=True,
         server_default=true(),
+    )
+    user_card_histories: Mapped[list["UserCardHistoryModel"]] = relationship(
+        back_populates="deck",
     )
