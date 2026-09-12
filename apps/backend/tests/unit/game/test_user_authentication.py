@@ -5,7 +5,7 @@ import pytest
 from pydantic import SecretStr
 from sqlalchemy.exc import IntegrityError
 
-from loredeck.game.user.repositories.base import NewUser, UniqueIdentifiers
+from loredeck.game.user.repositories.base import NewUser, UniqueIdentifiers, UserProfileUpdate
 from loredeck.game.user.services.password import PasswordService
 from loredeck.game.user.services.token import TokenService
 from loredeck.game.user.usecases.signin import InvalidCredentialsError, SigninUseCase
@@ -27,7 +27,15 @@ class FakeUserRepository:
     async def find_by_username(self, username: str) -> UserModel | None:
         return self.user if self.user is not None and self.user.username == username else None
 
-    async def find_conflicts(self, identifiers: UniqueIdentifiers) -> set[str]:
+    async def find_by_id(self, user_id: int) -> UserModel | None:
+        return self.user if self.user is not None and self.user.id == user_id else None
+
+    async def find_conflicts(
+        self,
+        identifiers: UniqueIdentifiers,
+        *,
+        exclude_user_id: int | None = None,
+    ) -> set[str]:
         return self.conflicts
 
     async def create(self, new_user: NewUser) -> UserModel:
@@ -35,6 +43,9 @@ class FakeUserRepository:
         if self.raise_integrity_error:
             raise IntegrityError("insert", {}, Exception("unique violation"))
         return make_user(password_hash=new_user.password_hash)
+
+    async def update_profile(self, user: UserModel, update: UserProfileUpdate) -> UserModel:
+        return user
 
     async def commit(self) -> None:
         if self.raise_integrity_error:
