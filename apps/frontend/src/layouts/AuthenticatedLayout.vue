@@ -5,9 +5,9 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col" dir="rtl">
+  <div class="flex min-h-screen flex-col bg-page text-foreground" dir="rtl">
     <AppHeader />
-    <main id="main-content" class="mx-auto flex w-full max-w-5xl flex-1 px-4 py-8 sm:py-12">
+    <main id="main-content" class="mx-auto flex w-full max-w-6xl flex-1 px-page py-section">
       <RouterView />
     </main>
     <AppFooter />
