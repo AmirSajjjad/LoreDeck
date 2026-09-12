@@ -4,15 +4,13 @@ from typing import Any, Protocol, cast
 import pytest
 from starlette.testclient import TestClient
 
-from loredeck.game.dependencies import get_draw_reading_use_case
-from loredeck.game.exceptions import (
+from loredeck.game.main import app
+from loredeck.game.readings.api.router import get_draw_reading_use_case
+from loredeck.game.readings.usecases.create_reading import (
     DeckNotFoundError,
+    DrawnCard,
     InactiveDeckError,
     InsufficientActiveCardsError,
-)
-from loredeck.game.main import app
-from loredeck.game.use_cases import (
-    DrawnCard,
     Orientation,
     PublicCard,
     ReadingPosition,

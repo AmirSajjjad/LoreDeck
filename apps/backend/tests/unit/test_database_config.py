@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import make_url
 
 from loredeck.shared.config import Settings
@@ -66,3 +67,34 @@ def test_debug_defaults_to_false(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = build_settings_from_environment(monkeypatch, debug=None)
 
     assert settings.debug is False
+
+
+def test_jwt_configuration_defaults_and_parsing() -> None:
+    settings = Settings.model_validate(
+        {
+            "database_host": "localhost",
+            "database_port": 5432,
+            "database_name": "loredeck",
+            "database_user": "loredeck",
+            "database_password": "change-me",
+            "jwt_secret": "test-secret",
+            "jwt_access_token_expire_minutes": 15,
+        }
+    )
+    assert settings.jwt_secret.get_secret_value() == "test-secret"
+    assert settings.jwt_algorithm == "HS256"
+    assert settings.jwt_access_token_expire_minutes == 15
+
+
+def test_jwt_expiration_must_be_positive() -> None:
+    with pytest.raises(ValidationError):
+        Settings.model_validate(
+            {
+                "database_host": "localhost",
+                "database_port": 5432,
+                "database_name": "loredeck",
+                "database_user": "loredeck",
+                "database_password": "change-me",
+                "jwt_access_token_expire_minutes": 0,
+            }
+        )

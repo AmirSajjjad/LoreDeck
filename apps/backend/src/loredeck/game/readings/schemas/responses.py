@@ -1,12 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from loredeck.game.use_cases import Orientation, ReadingPosition, Spread
-
-
-class ReadingCreateRequest(BaseModel):
-    question: str | None = None
-    deck_id: int = Field(gt=0)
-    spread: Spread
+from loredeck.game.readings.usecases.create_reading import Orientation, ReadingPosition
 
 
 class PublicCardResponse(BaseModel):

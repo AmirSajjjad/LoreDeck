@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import SecretStr
+from pydantic import PositiveInt, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     database_driver: str = "postgresql+asyncpg"
     database_echo: bool = False
     debug: bool = False
+    jwt_secret: SecretStr = SecretStr("")
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: PositiveInt = 30
 
     @property
     def database_url(self) -> URL:

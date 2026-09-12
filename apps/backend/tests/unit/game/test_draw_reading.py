@@ -3,13 +3,14 @@ from collections.abc import Sequence
 import pytest
 from pytest import MonkeyPatch
 
-from loredeck.game import use_cases
-from loredeck.game.exceptions import (
+from loredeck.game.readings.usecases import create_reading
+from loredeck.game.readings.usecases.create_reading import (
     DeckNotFoundError,
+    DrawReadingUseCase,
     InactiveDeckError,
     InsufficientActiveCardsError,
+    Spread,
 )
-from loredeck.game.use_cases import DrawReadingUseCase, Spread
 from loredeck.shared.models import CardModel
 
 
@@ -63,7 +64,7 @@ def make_card(card_id: int, *, deck_id: int = 1, is_active: bool = True) -> Card
 
 @pytest.fixture
 def fixed_random(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(use_cases.secrets, "SystemRandom", FixedSystemRandom)
+    monkeypatch.setattr(create_reading.secrets, "SystemRandom", FixedSystemRandom)
 
 
 @pytest.mark.asyncio

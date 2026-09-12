@@ -1,24 +1,29 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from loredeck.game.dependencies import get_draw_reading_use_case
-from loredeck.game.exceptions import (
+from loredeck.game.readings.repositories.sqlalchemy import SqlAlchemyReadingRepository
+from loredeck.game.readings.schemas.requests import ReadingCreateRequest
+from loredeck.game.readings.schemas.responses import ReadingResponse
+from loredeck.game.readings.usecases.create_reading import (
     DeckNotFoundError,
+    DrawReadingUseCase,
     InactiveDeckError,
     InsufficientActiveCardsError,
 )
-from loredeck.game.schemas import ReadingCreateRequest, ReadingResponse
-from loredeck.game.use_cases import DrawReadingUseCase
+from loredeck.shared.database import get_db_session
 
-router = APIRouter()
+router = APIRouter(prefix="/readings", tags=["readings"])
 
 
-@router.post(
-    "/readings",
-    response_model=ReadingResponse,
-    status_code=status.HTTP_200_OK,
-)
+def get_draw_reading_use_case(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> DrawReadingUseCase:
+    return DrawReadingUseCase(SqlAlchemyReadingRepository(session))
+
+
+@router.post("", response_model=ReadingResponse, status_code=status.HTTP_200_OK)
 async def create_reading(
     request: ReadingCreateRequest,
     use_case: Annotated[DrawReadingUseCase, Depends(get_draw_reading_use_case)],
@@ -31,8 +36,7 @@ async def create_reading(
         )
     except (DeckNotFoundError, InactiveDeckError) as error:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deck not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deck not found"
         ) from error
     except InsufficientActiveCardsError as error:
         raise HTTPException(

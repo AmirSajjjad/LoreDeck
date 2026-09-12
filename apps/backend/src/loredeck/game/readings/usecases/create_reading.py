@@ -3,13 +3,20 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from loredeck.game.exceptions import (
-    DeckNotFoundError,
-    InactiveDeckError,
-    InsufficientActiveCardsError,
-)
-from loredeck.game.repositories import ReadingRepository
+from loredeck.game.readings.repositories.base import ReadingRepository
 from loredeck.shared.models import CardModel
+
+
+class DeckNotFoundError(Exception):
+    """Raised when a requested deck does not exist."""
+
+
+class InactiveDeckError(Exception):
+    """Raised when a requested deck is not active."""
+
+
+class InsufficientActiveCardsError(Exception):
+    """Raised when a spread requires more active cards than are available."""
 
 
 class Spread(StrEnum):
@@ -63,15 +70,8 @@ class DrawReadingUseCase:
     def __init__(self, repository: ReadingRepository) -> None:
         self._repository = repository
 
-    async def execute(
-        self,
-        *,
-        deck_id: int,
-        spread: Spread,
-        question: str | None,
-    ) -> ReadingResult:
-        del question  # Reserved for future story generation; accepted by the public contract.
-
+    async def execute(self, *, deck_id: int, spread: Spread, question: str | None) -> ReadingResult:
+        del question
         deck_is_active = await self._repository.get_deck_active_status(deck_id)
         if deck_is_active is None:
             raise DeckNotFoundError
@@ -88,16 +88,11 @@ class DrawReadingUseCase:
         cards_by_id = {card.id: card for card in cards}
         if any(card_id not in cards_by_id for card_id in selected_ids):
             raise InsufficientActiveCardsError
-        selected_cards = [cards_by_id[card_id] for card_id in selected_ids]
 
         return ReadingResult(
             cards=tuple(
-                self._to_drawn_card(position, card)
-                for position, card in zip(
-                    POSITIONS_BY_SPREAD[spread],
-                    selected_cards,
-                    strict=True,
-                )
+                self._to_drawn_card(position, cards_by_id[card_id])
+                for position, card_id in zip(POSITIONS_BY_SPREAD[spread], selected_ids, strict=True)
             )
         )
 

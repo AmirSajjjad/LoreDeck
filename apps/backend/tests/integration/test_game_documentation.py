@@ -64,3 +64,15 @@ def test_readings_route_is_registered_regardless_of_debug(debug: bool) -> None:
         )
 
     assert response.status_code == 422
+
+
+def test_openapi_registers_user_and_reading_routes() -> None:
+    with TestClient(build_app(debug=True)) as client:
+        response = cast(
+            HttpResponse,
+            client.get("/openapi.json"),  # pyright: ignore[reportUnknownMemberType]
+        )
+
+    schema = cast(dict[str, object], response.json())
+    paths = cast(dict[str, object], schema["paths"])
+    assert {"/users/signup", "/users/signin", "/readings"} <= paths.keys()

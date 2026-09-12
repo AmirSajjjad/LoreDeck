@@ -3,7 +3,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from loredeck.game.router import router as readings_router
+from loredeck.game.readings.api.router import router as readings_router
+from loredeck.game.user.api.router import router as users_router
 from loredeck.shared.config import Settings, get_settings
 
 STATIC_DIRECTORY = Path(__file__).resolve().parents[3] / "static"
@@ -20,6 +21,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url="/openapi.json" if settings.debug else None,
     )
     application.include_router(readings_router)
+    application.include_router(users_router)
     application.mount(
         "/static",
         StaticFiles(directory=STATIC_DIRECTORY),
