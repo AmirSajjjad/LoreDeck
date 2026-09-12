@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { SelectOption } from '@/types/forms'
 
 defineOptions({ inheritAttrs: false })
-
-interface SelectOption {
-  label: string
-  value: string
-  disabled?: boolean
-}
 
 const props = withDefaults(
   defineProps<{
@@ -21,8 +16,9 @@ const props = withDefaults(
     error?: string
     required?: boolean
     disabled?: boolean
+    loading?: boolean
   }>(),
-  { required: false, disabled: false },
+  { required: false, disabled: false, loading: false },
 )
 
 const emit = defineEmits<{
@@ -50,7 +46,8 @@ const describedBy = computed(
       :value="modelValue"
       :name="name"
       :required="required"
-      :disabled="disabled"
+      :disabled="disabled || loading"
+      :aria-busy="loading || undefined"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="describedBy"
       class="min-h-11 w-full rounded-control border border-line bg-elevated px-3.5 py-2 text-foreground hover:border-accent/60 disabled:cursor-not-allowed disabled:opacity-55 aria-invalid:border-destructive"

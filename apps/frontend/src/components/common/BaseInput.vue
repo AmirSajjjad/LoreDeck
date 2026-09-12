@@ -16,8 +16,9 @@ const props = withDefaults(
     error?: string
     required?: boolean
     disabled?: boolean
+    loading?: boolean
   }>(),
-  { type: 'text', required: false, disabled: false },
+  { type: 'text', required: false, disabled: false, loading: false },
 )
 
 const emit = defineEmits<{
@@ -48,7 +49,8 @@ const describedBy = computed(
       :autocomplete="autocomplete"
       :placeholder="placeholder"
       :required="required"
-      :disabled="disabled"
+      :disabled="disabled || loading"
+      :aria-busy="loading || undefined"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="describedBy"
       class="min-h-11 w-full rounded-control border border-line bg-elevated px-3.5 py-2 text-foreground placeholder:text-muted/70 hover:border-accent/60 disabled:cursor-not-allowed disabled:opacity-55 aria-invalid:border-destructive"
