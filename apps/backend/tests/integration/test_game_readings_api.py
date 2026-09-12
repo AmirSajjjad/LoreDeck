@@ -1,7 +1,10 @@
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol, cast
 
+import jwt
 import pytest
+from pydantic import SecretStr
 from starlette.testclient import TestClient
 
 from loredeck.game.main import app
@@ -13,14 +16,26 @@ from loredeck.game.readings.usecases.create_reading import (
     InsufficientActiveCardsError,
     Orientation,
     PublicCard,
+    ReadingPersistenceError,
     ReadingPosition,
     ReadingResult,
     Spread,
 )
+from loredeck.game.user.api.router import (
+    get_optional_current_user,
+    get_token_service,
+    get_user_repository,
+)
+from loredeck.game.user.services.token import TokenService
+from loredeck.shared.models import UserModel
+
+TEST_SECRET = "readings-test-secret-not-used-in-production-0123456789abcdef"
+TOKEN_SERVICE = TokenService(secret=SecretStr(TEST_SECRET), algorithm="HS256", expire_minutes=30)
 
 
 class HttpResponse(Protocol):
     status_code: int
+    headers: dict[str, str]
 
     def json(self) -> object: ...
 
@@ -29,6 +44,7 @@ class StubDrawReadingUseCase:
     def __init__(self, error: Exception | None = None) -> None:
         self.error = error
         self.questions: list[str | None] = []
+        self.user_ids: list[int | None] = []
 
     async def execute(
         self,
@@ -36,8 +52,10 @@ class StubDrawReadingUseCase:
         deck_id: int,
         spread: Spread,
         question: str | None,
+        user_id: int | None = None,
     ) -> ReadingResult:
         self.questions.append(question)
+        self.user_ids.append(user_id)
         if self.error is not None:
             raise self.error
 
@@ -100,6 +118,7 @@ def test_create_reading_contract(
     assert [card["position"] for card in body["cards"]] == positions
     assert body["summary"] == ""
     assert use_case.questions == ["A question"]
+    assert use_case.user_ids == [None]
     for drawn_card in body["cards"]:
         assert drawn_card["orientation"] == "upright"
         assert drawn_card["story"] == ""
@@ -119,6 +138,77 @@ def test_create_reading_accepts_omitted_question(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert use_case.questions == [None]
+
+
+def test_authenticated_reading_passes_verified_user_to_use_case(client: TestClient) -> None:
+    use_case = StubDrawReadingUseCase()
+    user = UserModel(
+        id=42,
+        username="reader",
+        password_hash="not-public",
+        phone_number=None,
+        profile_pic=None,
+        name=None,
+        email=None,
+        telegram_id=None,
+        created_at=datetime(2026, 9, 12, 12, tzinfo=UTC),
+    )
+    app.dependency_overrides[get_draw_reading_use_case] = lambda: use_case
+    app.dependency_overrides[get_optional_current_user] = lambda: user
+
+    response = cast(
+        HttpResponse,
+        client.post(  # pyright: ignore[reportUnknownMemberType]
+            "/readings",
+            json={"deck_id": 1, "spread": "one_card", "question": "Question"},
+        ),
+    )
+
+    assert response.status_code == 200
+    assert use_case.user_ids == [42]
+    assert "history" not in cast(dict[str, Any], response.json())
+
+
+class FindUserRepository:
+    async def find_by_id(self, user_id: int) -> UserModel | None:
+        return None
+
+
+@pytest.mark.parametrize("expired", [False, True], ids=["invalid", "expired"])
+def test_reading_rejects_invalid_supplied_token(
+    client: TestClient,
+    expired: bool,
+) -> None:
+    use_case = StubDrawReadingUseCase()
+    app.dependency_overrides[get_draw_reading_use_case] = lambda: use_case
+    app.dependency_overrides[get_token_service] = lambda: TOKEN_SERVICE
+    app.dependency_overrides[get_user_repository] = FindUserRepository
+    if expired:
+        now = datetime.now(UTC)
+        token = jwt.encode(  # pyright: ignore[reportUnknownMemberType]
+            {
+                "sub": "1",
+                "iat": now - timedelta(minutes=2),
+                "exp": now - timedelta(minutes=1),
+            },
+            TEST_SECRET,
+            algorithm="HS256",
+        )
+    else:
+        token = "invalid-token"
+
+    response = cast(
+        HttpResponse,
+        client.post(  # pyright: ignore[reportUnknownMemberType]
+            "/readings",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"deck_id": 1, "spread": "one_card"},
+        ),
+    )
+
+    assert response.status_code == 401
+    assert response.headers["www-authenticate"] == "Bearer"
+    assert use_case.user_ids == []
 
 
 @pytest.mark.parametrize(
@@ -146,6 +236,7 @@ def test_create_reading_validates_request(client: TestClient, body: dict[str, ob
         (DeckNotFoundError(), 404),
         (InactiveDeckError(), 404),
         (InsufficientActiveCardsError(), 409),
+        (ReadingPersistenceError(), 500),
     ],
 )
 def test_create_reading_maps_application_errors(

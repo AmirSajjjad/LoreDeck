@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
-from loredeck.game.readings.repositories.base import ReadingRepository
+from loredeck.game.readings.repositories.base import NewReadingHistory, ReadingRepository
 from loredeck.shared.models import CardModel
 
 
@@ -17,6 +17,10 @@ class InactiveDeckError(Exception):
 
 class InsufficientActiveCardsError(Exception):
     """Raised when a spread requires more active cards than are available."""
+
+
+class ReadingPersistenceError(Exception):
+    """Raised when an authenticated reading cannot be saved."""
 
 
 class Spread(StrEnum):
@@ -70,8 +74,14 @@ class DrawReadingUseCase:
     def __init__(self, repository: ReadingRepository) -> None:
         self._repository = repository
 
-    async def execute(self, *, deck_id: int, spread: Spread, question: str | None) -> ReadingResult:
-        del question
+    async def execute(
+        self,
+        *,
+        deck_id: int,
+        spread: Spread,
+        question: str | None,
+        user_id: int | None = None,
+    ) -> ReadingResult:
         deck_is_active = await self._repository.get_deck_active_status(deck_id)
         if deck_is_active is None:
             raise DeckNotFoundError
@@ -89,12 +99,60 @@ class DrawReadingUseCase:
         if any(card_id not in cards_by_id for card_id in selected_ids):
             raise InsufficientActiveCardsError
 
-        return ReadingResult(
+        result = ReadingResult(
             cards=tuple(
                 self._to_drawn_card(position, cards_by_id[card_id])
                 for position, card_id in zip(POSITIONS_BY_SPREAD[spread], selected_ids, strict=True)
             )
         )
+        if user_id is not None:
+            await self._save_history(
+                user_id=user_id,
+                question=question,
+                deck_id=deck_id,
+                selected_ids=selected_ids,
+                result=result,
+            )
+        return result
+
+    async def _save_history(
+        self,
+        *,
+        user_id: int,
+        question: str | None,
+        deck_id: int,
+        selected_ids: Sequence[int],
+        result: ReadingResult,
+    ) -> None:
+        card_ids: tuple[int | None, int | None, int | None] = (
+            selected_ids[0],
+            selected_ids[1] if len(selected_ids) > 1 else None,
+            selected_ids[2] if len(selected_ids) > 2 else None,
+        )
+        stories: tuple[str | None, str | None, str | None] = (
+            result.cards[0].story,
+            result.cards[1].story if len(result.cards) > 1 else None,
+            result.cards[2].story if len(result.cards) > 2 else None,
+        )
+        try:
+            await self._repository.add_history(
+                NewReadingHistory(
+                    user_id=user_id,
+                    question=question,
+                    deck_id=deck_id,
+                    first_card_id=card_ids[0],
+                    first_story=stories[0],
+                    second_card_id=card_ids[1],
+                    second_story=stories[1],
+                    third_card_id=card_ids[2],
+                    third_story=stories[2],
+                    summary=result.summary,
+                )
+            )
+            await self._repository.commit()
+        except Exception as error:
+            await self._repository.rollback()
+            raise ReadingPersistenceError from error
 
     @staticmethod
     def _to_drawn_card(position: ReadingPosition, card: CardModel) -> DrawnCard:

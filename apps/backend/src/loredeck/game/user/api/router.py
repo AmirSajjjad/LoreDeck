@@ -72,15 +72,17 @@ def get_signin_use_case(
     return SigninUseCase(repository, password_service, token_service)
 
 
-async def get_current_user(
+async def get_optional_current_user(
     credentials: Annotated[
         HTTPAuthorizationCredentials | None,
         Depends(bearer_scheme),
     ],
     token_service: Annotated[TokenService, Depends(get_token_service)],
     repository: Annotated[UserRepository, Depends(get_user_repository)],
-) -> UserModel:
-    if credentials is None or credentials.scheme.lower() != "bearer":
+) -> UserModel | None:
+    if credentials is None:
+        return None
+    if credentials.scheme.lower() != "bearer":
         raise unauthorized()
     try:
         claims = token_service.decode_access_token(credentials.credentials)
@@ -97,6 +99,14 @@ async def get_current_user(
     if user is None:
         raise unauthorized()
     return user
+
+
+async def get_current_user(
+    current_user: Annotated[UserModel | None, Depends(get_optional_current_user)],
+) -> UserModel:
+    if current_user is None:
+        raise unauthorized()
+    return current_user
 
 
 def get_profile_use_case() -> GetProfileUseCase:

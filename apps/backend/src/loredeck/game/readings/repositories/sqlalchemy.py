@@ -3,7 +3,8 @@ from collections.abc import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from loredeck.shared.models import CardModel, DeckModel
+from loredeck.game.readings.repositories.base import NewReadingHistory
+from loredeck.shared.models import CardModel, DeckModel, UserCardHistoryModel
 
 
 class SqlAlchemyReadingRepository:
@@ -36,3 +37,26 @@ class SqlAlchemyReadingRepository:
             )
         )
         return result.all()
+
+    async def add_history(self, history: NewReadingHistory) -> None:
+        self._session.add(
+            UserCardHistoryModel(
+                user_id=history.user_id,
+                question=history.question,
+                deck_id=history.deck_id,
+                first_card_id=history.first_card_id,
+                first_story=history.first_story,
+                second_card_id=history.second_card_id,
+                second_story=history.second_story,
+                third_card_id=history.third_card_id,
+                third_story=history.third_story,
+                summary=history.summary,
+            )
+        )
+        await self._session.flush()
+
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def rollback(self) -> None:
+        await self._session.rollback()
