@@ -26,4 +26,16 @@ repos:
         types: [python]
         files: ^apps/backend/(alembic|scripts|src|tests)/
 
-# apps/frontend has no package manifest, lockfile, or configured lint/format tools yet.
+      - id: frontend-eslint
+        name: frontend ESLint
+        entry: npm --prefix apps/frontend run lint
+        language: system
+        files: ^apps/frontend/.*\.(js|mjs|cjs|ts|mts|cts|vue)$
+        pass_filenames: false
+
+      - id: frontend-prettier
+        name: frontend Prettier check
+        entry: npm --prefix apps/frontend run format:check
+        language: system
+        files: ^apps/frontend/
+        pass_filenames: false
