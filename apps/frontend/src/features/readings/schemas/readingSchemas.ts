@@ -41,3 +41,31 @@ export const readingResponseSchema = z.object({
   cards: z.array(readingCardSchema),
   summary: z.string(),
 })
+
+const historyDeckSchema = z.object({ id: z.number().int().positive(), title: z.string() })
+const historyCardSchema = readingCardSchema.extend({ story: z.string().nullable() })
+
+export const readingHistoryItemSchema = z.object({
+  id: z.number().int().positive(),
+  created_at: z.string().datetime({ offset: true }),
+  question: z.string().nullable(),
+  deck: historyDeckSchema,
+  spread: spreadSchema,
+})
+
+export const readingHistoryPageSchema = z.object({
+  items: z.array(readingHistoryItemSchema),
+  total: z.number().int().nonnegative(),
+  limit: z.number().int().min(1).max(100),
+  offset: z.number().int().nonnegative(),
+})
+
+export const readingHistoryDetailSchema = z.object({
+  id: z.number().int().positive(),
+  created_at: z.string().datetime({ offset: true }),
+  question: z.string().nullable(),
+  deck: historyDeckSchema,
+  spread: spreadSchema,
+  cards: z.array(historyCardSchema),
+  summary: z.string().nullable(),
+})

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
-import type { ReadingCard } from '@/features/readings/types'
+import type { RenderableReadingCard } from '@/features/readings/types'
 import { resolveCardImageUrl } from '@/features/readings/utils/cardImage'
 
-const props = defineProps<{ item: ReadingCard }>()
+const props = defineProps<{ item: RenderableReadingCard }>()
 const imageLoading = ref(true)
 const imageFailed = ref(false)
 
@@ -73,7 +73,7 @@ const showImage = computed(() => imageUrl.value && !imageFailed.value)
           {{ item.card.description }}
         </p>
       </div>
-      <section v-if="item.story.trim()" class="border-t border-line pt-4" aria-label="روایت کارت">
+      <section v-if="item.story?.trim()" class="border-t border-line pt-4" aria-label="روایت کارت">
         <h3 class="font-semibold">روایت این کارت</h3>
         <p class="mt-2 whitespace-pre-line break-words text-sm leading-8 text-muted">
           {{ item.story }}

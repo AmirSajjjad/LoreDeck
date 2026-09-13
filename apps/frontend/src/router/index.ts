@@ -56,6 +56,11 @@ const router = createRouter({
           name: 'reading-history',
           component: () => import('@/features/readings/views/ReadingHistoryView.vue'),
         },
+        {
+          path: 'readings/history/:historyId',
+          name: 'reading-history-detail',
+          component: () => import('@/features/readings/views/ReadingHistoryDetailView.vue'),
+        },
       ],
     },
     {

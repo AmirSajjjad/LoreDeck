@@ -1,11 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from loredeck.game.readings.repositories.history import (
+    ReadingHistoryRepository,
+    SqlAlchemyReadingHistoryRepository,
+)
 from loredeck.game.readings.repositories.sqlalchemy import SqlAlchemyReadingRepository
 from loredeck.game.readings.schemas.requests import ReadingCreateRequest
-from loredeck.game.readings.schemas.responses import ReadingResponse
+from loredeck.game.readings.schemas.responses import (
+    ReadingHistoryDetailResponse,
+    ReadingHistoryPageResponse,
+    ReadingResponse,
+)
 from loredeck.game.readings.usecases.create_reading import (
     DeckNotFoundError,
     DrawReadingUseCase,
@@ -13,7 +21,12 @@ from loredeck.game.readings.usecases.create_reading import (
     InsufficientActiveCardsError,
     ReadingPersistenceError,
 )
-from loredeck.game.user.api.router import get_optional_current_user
+from loredeck.game.readings.usecases.history import (
+    GetReadingHistoryUseCase,
+    HistoryNotFoundError,
+    ListReadingHistoryUseCase,
+)
+from loredeck.game.user.api.router import get_current_user, get_optional_current_user
 from loredeck.shared.database import get_db_session
 from loredeck.shared.models import UserModel
 
@@ -24,6 +37,50 @@ def get_draw_reading_use_case(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> DrawReadingUseCase:
     return DrawReadingUseCase(SqlAlchemyReadingRepository(session))
+
+
+def get_reading_history_repository(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> ReadingHistoryRepository:
+    return SqlAlchemyReadingHistoryRepository(session)
+
+
+def get_list_reading_history_use_case(
+    repository: Annotated[ReadingHistoryRepository, Depends(get_reading_history_repository)],
+) -> ListReadingHistoryUseCase:
+    return ListReadingHistoryUseCase(repository)
+
+
+def get_reading_history_use_case(
+    repository: Annotated[ReadingHistoryRepository, Depends(get_reading_history_repository)],
+) -> GetReadingHistoryUseCase:
+    return GetReadingHistoryUseCase(repository)
+
+
+@router.get("/history", response_model=ReadingHistoryPageResponse)
+async def list_reading_history(
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    use_case: Annotated[ListReadingHistoryUseCase, Depends(get_list_reading_history_use_case)],
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> ReadingHistoryPageResponse:
+    result = await use_case.execute(current_user.id, limit=limit, offset=offset)
+    return ReadingHistoryPageResponse.model_validate(result)
+
+
+@router.get("/history/{history_id}", response_model=ReadingHistoryDetailResponse)
+async def get_reading_history(
+    history_id: int,
+    current_user: Annotated[UserModel, Depends(get_current_user)],
+    use_case: Annotated[GetReadingHistoryUseCase, Depends(get_reading_history_use_case)],
+) -> ReadingHistoryDetailResponse:
+    try:
+        result = await use_case.execute(current_user.id, history_id)
+    except HistoryNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Reading not found"
+        ) from error
+    return ReadingHistoryDetailResponse.model_validate(result)
 
 
 @router.post(

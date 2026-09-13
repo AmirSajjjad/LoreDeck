@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import PlaceholderPage from '@/components/common/PlaceholderPage.vue'
+import ReadingHistoryPage from '@/features/readings/components/ReadingHistoryPage.vue'
 </script>
 
 <template>
-  <PlaceholderPage
-    title="تاریخچهٔ خوانش‌ها"
-    description="تاریخچه پس از پیاده‌سازی قرارداد و قابلیت خوانش‌ها در دسترس خواهد بود."
-  />
+  <ReadingHistoryPage />
 </template>
