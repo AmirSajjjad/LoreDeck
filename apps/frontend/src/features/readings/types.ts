@@ -12,3 +12,4 @@ export type Spread = z.infer<typeof spreadSchema>
 export type ReadingFormValues = z.infer<typeof readingFormSchema>
 export type ReadingRequest = z.infer<typeof readingRequestSchema>
 export type ReadingResponse = z.infer<typeof readingResponseSchema>
+export type ReadingCard = ReadingResponse['cards'][number]
