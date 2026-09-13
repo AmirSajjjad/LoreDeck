@@ -34,6 +34,11 @@ const router = createRouter({
           name: 'reading-create',
           component: () => import('@/features/readings/views/CreateReadingView.vue'),
         },
+        {
+          path: 'readings/result',
+          name: 'reading-result',
+          component: () => import('@/features/readings/views/ReadingResultView.vue'),
+        },
       ],
     },
     {

@@ -174,6 +174,40 @@ class FindUserRepository:
         return None
 
 
+class ExistingUserRepository:
+    def __init__(self, user: UserModel) -> None:
+        self.user = user
+
+    async def find_by_id(self, user_id: int) -> UserModel | None:
+        return self.user if user_id == self.user.id else None
+
+
+def test_reading_accepts_valid_supplied_token(client: TestClient) -> None:
+    use_case = StubDrawReadingUseCase()
+    user = UserModel(
+        id=42,
+        username="reader",
+        password_hash="not-public",
+        created_at=datetime(2026, 9, 12, 12, tzinfo=UTC),
+    )
+    app.dependency_overrides[get_draw_reading_use_case] = lambda: use_case
+    app.dependency_overrides[get_token_service] = lambda: TOKEN_SERVICE
+    app.dependency_overrides[get_user_repository] = lambda: ExistingUserRepository(user)
+    token = TOKEN_SERVICE.create_access_token(user.id)
+
+    response = cast(
+        HttpResponse,
+        client.post(  # pyright: ignore[reportUnknownMemberType]
+            "/readings",
+            headers={"Authorization": f"Bearer {token.value}"},
+            json={"deck_id": 1, "spread": "one_card"},
+        ),
+    )
+
+    assert response.status_code == 200
+    assert use_case.user_ids == [42]
+
+
 @pytest.mark.parametrize("expired", [False, True], ids=["invalid", "expired"])
 def test_reading_rejects_invalid_supplied_token(
     client: TestClient,
@@ -254,3 +288,16 @@ def test_create_reading_maps_application_errors(
     )
 
     assert response.status_code == status_code
+
+
+def test_openapi_documents_reading_bearer_as_optional(client: TestClient) -> None:
+    response = cast(
+        HttpResponse,
+        client.get("/openapi.json"),  # pyright: ignore[reportUnknownMemberType]
+    )
+    schema = cast(dict[str, Any], response.json())
+
+    assert schema["paths"]["/readings"]["post"]["security"] == [
+        {"HTTPBearer": []},
+        {},
+    ]

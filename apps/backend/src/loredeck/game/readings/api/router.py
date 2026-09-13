@@ -26,7 +26,12 @@ def get_draw_reading_use_case(
     return DrawReadingUseCase(SqlAlchemyReadingRepository(session))
 
 
-@router.post("", response_model=ReadingResponse, status_code=status.HTTP_200_OK)
+@router.post(
+    "",
+    response_model=ReadingResponse,
+    status_code=status.HTTP_200_OK,
+    openapi_extra={"security": [{}]},
+)
 async def create_reading(
     request: ReadingCreateRequest,
     use_case: Annotated[DrawReadingUseCase, Depends(get_draw_reading_use_case)],

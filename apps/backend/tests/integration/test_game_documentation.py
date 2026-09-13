@@ -75,4 +75,4 @@ def test_openapi_registers_user_and_reading_routes() -> None:
 
     schema = cast(dict[str, object], response.json())
     paths = cast(dict[str, object], schema["paths"])
-    assert {"/users/signup", "/users/signin", "/readings"} <= paths.keys()
+    assert {"/decks", "/users/signup", "/users/signin", "/readings"} <= paths.keys()
