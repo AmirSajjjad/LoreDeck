@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import BaseAlert from '@/components/common/BaseAlert.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
+
 withDefaults(
   defineProps<{ title?: string; message: string; retryable?: boolean; retryLabel?: string }>(),
   { title: 'خطایی رخ داد', retryable: false, retryLabel: 'تلاش دوباره' },
@@ -16,5 +19,3 @@ defineEmits<{ retry: [] }>()
     </BaseAlert>
   </section>
 </template>
-import BaseAlert from '@/components/common/BaseAlert.vue' import BaseButton from
-'@/components/common/BaseButton.vue'

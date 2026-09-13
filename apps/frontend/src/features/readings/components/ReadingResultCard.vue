@@ -48,6 +48,8 @@ const showImage = computed(() => imageUrl.value && !imageFailed.value)
         <img
           :src="imageUrl"
           :alt="`تصویر کارت ${item.card.title}`"
+          loading="lazy"
+          decoding="async"
           class="size-full object-cover transition-opacity"
           :class="imageLoading ? 'opacity-0' : 'opacity-100'"
           @load="imageLoading = false"

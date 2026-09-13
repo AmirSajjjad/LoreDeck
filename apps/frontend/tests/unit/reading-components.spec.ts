@@ -22,12 +22,13 @@ const oneCard: ReadingResponse = {
   ],
   summary: 'جمع‌بندی',
 }
+const firstCard = oneCard.cards[0]
 
 describe('reading result components', () => {
   it('renders nullable card fields and untrusted text as plain text', async () => {
     const item = {
-      ...oneCard.cards[0],
-      card: { ...oneCard.cards[0]!.card, image_path: null },
+      ...firstCard,
+      card: { ...firstCard.card, image_path: null },
     }
     const wrapper = mount(ReadingResultCard, { props: { item } })
     expect(wrapper.text()).toContain('خورشید <script>alert(1)</script>')
