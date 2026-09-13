@@ -1,13 +1,10 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { resetUnauthorizedEvent } from '@/api/auth'
-import {
-  getCurrentUser,
-  signin as requestSignin,
-  signup as requestSignup,
-} from '@/features/auth/api'
+import { signin as requestSignin, signup as requestSignup } from '@/features/auth/api'
 import type { PublicUser, SigninRequest, SignupRequest } from '@/features/auth/types'
 import { clearAccessToken, readAccessToken, writeAccessToken } from '@/features/auth/tokenStorage'
+import { getProfile } from '@/features/profile/api'
 import { ApiError } from '@/types/api'
 
 export type AuthenticationStatus =
@@ -58,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       try {
-        currentUser.value = await getCurrentUser()
+        currentUser.value = await getProfile()
         status.value = 'authenticated'
         resetUnauthorizedEvent()
       } catch (error) {
@@ -83,6 +80,10 @@ export const useAuthStore = defineStore('auth', () => {
     clearSession()
   }
 
+  function synchronizeUser(user: PublicUser): void {
+    currentUser.value = user
+  }
+
   return {
     status,
     currentUser,
@@ -93,5 +94,6 @@ export const useAuthStore = defineStore('auth', () => {
     initializeSession,
     clearSession,
     logout,
+    synchronizeUser,
   }
 })

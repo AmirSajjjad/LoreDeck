@@ -16,7 +16,17 @@ const pinia = createPinia()
 const auth = useAuthStore(pinia)
 
 setAccessTokenProvider({ getAccessToken: readAccessToken })
-onUnauthorized(() => auth.clearSession())
+onUnauthorized(() => {
+  const currentRoute = router.currentRoute.value
+  const redirect = currentRoute.fullPath
+  const requiresAuthentication = currentRoute.matched.some(
+    (route) => route.meta.requiresAuth === true,
+  )
+  auth.clearSession()
+  if (requiresAuthentication) {
+    void router.replace({ name: 'sign-in', query: { redirect } })
+  }
+})
 
 app.use(pinia)
 app.use(router)
