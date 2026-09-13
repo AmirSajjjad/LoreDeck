@@ -13,6 +13,9 @@ __pycache__/
 htmlcov/
 dist/
 build/
+coverage/
+playwright-report/
+test-results/
 *.egg-info/
 .idea/
 draft-prompt.md

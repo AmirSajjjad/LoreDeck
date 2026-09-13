@@ -30,8 +30,27 @@ npm run dev
 npm run type-check
 npm run lint
 npm run format:check
+npm run test
+npm run test:e2e
+npm run check
 npm run build
 npm run preview
 ```
 
 `npm run format` writes Prettier changes. Run commands from `apps/frontend`.
+
+## Tests
+
+Unit and component tests live in `tests/unit`; browser journeys live in `tests/e2e`. Vitest uses a
+shared jsdom setup and mocks the shared Axios boundary, so it cannot contact a live backend.
+Playwright routes API calls to deterministic in-test fixtures and targets Chromium only.
+
+Install the Chromium binary once after `npm ci`:
+
+```bash
+npx playwright install chromium
+```
+
+Use `npm run test` for a non-interactive unit run, `npm run test:watch` while developing, and
+`npm run test:e2e` for browser journeys. Failure screenshots, video, and traces are written to
+ignored test-artifact directories.

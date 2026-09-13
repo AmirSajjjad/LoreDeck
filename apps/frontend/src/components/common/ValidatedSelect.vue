@@ -16,7 +16,7 @@ const props = withDefaults(
     disabled?: boolean
     loading?: boolean
   }>(),
-  { modelValue: '', required: false, disabled: false, loading: false },
+  { required: false, disabled: false, loading: false },
 )
 
 const emit = defineEmits<{
@@ -27,7 +27,7 @@ const emit = defineEmits<{
 const { value, errorMessage, meta, handleChange, handleBlur } = useField<string>(
   () => props.name,
   undefined,
-  { syncVModel: true },
+  { syncVModel: props.modelValue !== undefined },
 )
 
 function onBlur(event: FocusEvent): void {
