@@ -24,6 +24,8 @@ def build_app() -> TestClient:
             "database_password": "change-me",
             "debug": True,
             "cors_allowed_origins": ALLOWED_ORIGIN,
+            "cors_allowed_methods": "GET,POST",
+            "cors_allowed_headers": "Authorization,Content-Type",
         }
     )
     return TestClient(create_app(settings))

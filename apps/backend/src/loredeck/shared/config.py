@@ -21,13 +21,27 @@ class Settings(BaseSettings):
     database_echo: bool = False
     debug: bool = False
     cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    cors_allowed_methods: str = "*"
+    cors_allowed_headers: str = "*"
     jwt_secret: SecretStr = SecretStr("")
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: PositiveInt = 30
 
     @property
     def allowed_origins(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
+        return self._split_csv(self.cors_allowed_origins)
+
+    @property
+    def allowed_methods(self) -> list[str]:
+        return self._split_csv(self.cors_allowed_methods)
+
+    @property
+    def allowed_headers(self) -> list[str]:
+        return self._split_csv(self.cors_allowed_headers)
+
+    @staticmethod
+    def _split_csv(value: str) -> list[str]:
+        return [item.strip() for item in value.split(",") if item.strip()]
 
     @property
     def database_url(self) -> URL:
