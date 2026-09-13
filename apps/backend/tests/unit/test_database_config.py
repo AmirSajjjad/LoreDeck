@@ -69,6 +69,24 @@ def test_debug_defaults_to_false(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.debug is False
 
 
+def test_cors_allowed_origins_parses_comma_separated_environment_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for name, value in DATABASE_ENVIRONMENT.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv(
+        "LOREDECK_CORS_ALLOWED_ORIGINS",
+        " http://localhost:5173, http://127.0.0.1:5173, ",
+    )
+
+    settings = Settings(_env_file=None)  # pyright: ignore[reportCallIssue]
+
+    assert settings.allowed_origins == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+
 def test_jwt_configuration_defaults_and_parsing() -> None:
     settings = Settings.model_validate(
         {
