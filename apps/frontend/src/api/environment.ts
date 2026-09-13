@@ -12,11 +12,15 @@ export function parseEnvironment(source: Pick<ImportMetaEnv, 'VITE_API_BASE_URL'
     )
   }
 
+  if (rawBaseUrl.startsWith('/') && !rawBaseUrl.startsWith('//') && !/[?#]/.test(rawBaseUrl)) {
+    return Object.freeze({ apiBaseUrl: rawBaseUrl.replace(/\/$/, '') })
+  }
+
   let parsedUrl: URL
   try {
     parsedUrl = new URL(rawBaseUrl)
   } catch {
-    throw new Error('VITE_API_BASE_URL must be a valid absolute HTTP(S) URL.')
+    throw new Error('VITE_API_BASE_URL must be an absolute HTTP(S) URL or root-relative path.')
   }
 
   if (

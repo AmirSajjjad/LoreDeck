@@ -11,9 +11,10 @@ npm ci
 npm run dev
 ```
 
-`VITE_API_BASE_URL` is the required, public Game API origin. The sample value expects the backend
-at `http://localhost:8000`; the API has no global `/api` prefix. Never commit `.env.local` or other
-populated environment files.
+`VITE_API_BASE_URL` is the required, public Game API base URL. It accepts an absolute HTTP(S) URL
+or a root-relative path. The development sample expects the backend at `http://localhost:8000`;
+the production container uses `/api` through its Nginx reverse proxy. Never commit `.env.local`
+or other populated environment files.
 
 Shared environment validation and the Axios instance live in `src/api`. Feature API modules import
 `apiClient` from `@/api/client`; Vue components and views call feature services instead of Axios.

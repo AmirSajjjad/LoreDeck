@@ -29,7 +29,7 @@ The backend uses Python 3.13, uv, FastAPI, Pydantic Settings, SQLAlchemy 2 with 
 From the repository root, create a local backend environment file:
 
 ```bash
-cp .env.sample apps/backend/.env
+cp apps/backend/.env.sample apps/backend/.env
 ```
 
 Edit the safe placeholder values for your local PostgreSQL instance. LoreDeck reads the `LOREDECK_DATABASE_HOST`, `LOREDECK_DATABASE_PORT`, `LOREDECK_DATABASE_NAME`, `LOREDECK_DATABASE_USER`, `LOREDECK_DATABASE_PASSWORD`, `LOREDECK_DATABASE_DRIVER`, and `LOREDECK_DATABASE_ECHO` variables. Never commit `apps/backend/.env`.
@@ -93,6 +93,12 @@ uv run --project apps/backend pre-commit run --all-files
 ```
 
 The hooks perform repository hygiene checks, backend Ruff lint and formatting checks, and frontend ESLint and Prettier checks without synchronizing dependencies.
+
+## Container deployment
+
+Production-ready, provider-neutral backend and frontend images and a PostgreSQL Compose stack are
+documented in [`deploy/README.md`](deploy/README.md). The deployment uses a one-shot migration
+service, persistent database storage, health checks, and an internal frontend-to-backend proxy.
 
 ## Important paths
 

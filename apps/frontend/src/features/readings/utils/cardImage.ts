@@ -7,5 +7,6 @@ export function resolveCardImageUrl(imagePath: string | null): string | undefine
   }
 
   const staticPath = path.startsWith('static/') ? path : `static/${path}`
-  return new URL(staticPath, `${getEnvironment().apiBaseUrl}/`).toString()
+  const apiBaseUrl = new URL(`${getEnvironment().apiBaseUrl}/`, window.location.origin)
+  return new URL(staticPath, apiBaseUrl).toString()
 }

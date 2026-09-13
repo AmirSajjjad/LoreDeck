@@ -33,7 +33,11 @@ describe('shared API infrastructure', () => {
     expect(parseEnvironment({ VITE_API_BASE_URL: ' https://api.example.test/ ' })).toEqual({
       apiBaseUrl: 'https://api.example.test',
     })
+    expect(parseEnvironment({ VITE_API_BASE_URL: '/api/' })).toEqual({ apiBaseUrl: '/api' })
     expect(() => parseEnvironment({ VITE_API_BASE_URL: '' })).toThrow('VITE_API_BASE_URL')
+    expect(() => parseEnvironment({ VITE_API_BASE_URL: '//api.example.test' })).toThrow(
+      'root-relative',
+    )
     expect(() => parseEnvironment({ VITE_API_BASE_URL: 'file:///tmp/api' })).toThrow('HTTP(S)')
   })
 
