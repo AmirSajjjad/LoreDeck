@@ -3,7 +3,7 @@ import { emitUnauthorized, resolveAccessToken } from '@/api/auth'
 import { getEnvironment } from '@/api/environment'
 import { normalizeApiError } from '@/api/errors'
 
-const API_TIMEOUT_MS = 10_000
+const API_TIMEOUT_MS = 40_000
 
 export const apiClient = axios.create({
   baseURL: getEnvironment().apiBaseUrl,
