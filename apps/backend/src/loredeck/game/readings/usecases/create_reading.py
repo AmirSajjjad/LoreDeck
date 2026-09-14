@@ -1,10 +1,12 @@
 import secrets
 from collections.abc import Sequence
 from dataclasses import dataclass
-from enum import StrEnum
 
 from loredeck.game.readings.repositories.base import NewReadingHistory, ReadingRepository
 from loredeck.shared.models import CardModel
+from loredeck.shared.readings import CardOrientation as Orientation
+from loredeck.shared.readings import ReadingPosition
+from loredeck.shared.readings import ReadingSpread as Spread
 
 
 class DeckNotFoundError(Exception):
@@ -21,21 +23,6 @@ class InsufficientActiveCardsError(Exception):
 
 class ReadingPersistenceError(Exception):
     """Raised when an authenticated reading cannot be saved."""
-
-
-class Spread(StrEnum):
-    ONE_CARD = "one_card"
-    THREE_CARD = "three_card"
-
-
-class ReadingPosition(StrEnum):
-    PAST = "past"
-    PRESENT = "present"
-    FUTURE = "future"
-
-
-class Orientation(StrEnum):
-    UPRIGHT = "upright"
 
 
 @dataclass(frozen=True)

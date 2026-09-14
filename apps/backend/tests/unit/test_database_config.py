@@ -10,6 +10,9 @@ DATABASE_ENVIRONMENT = {
     "LOREDECK_DATABASE_NAME": "loredeck",
     "LOREDECK_DATABASE_USER": "loredeck",
     "LOREDECK_DATABASE_PASSWORD": "change-me",
+    "LOREDECK_AI_PROVIDER": "openai",
+    "LOREDECK_OPENAI_API_KEY": "test-key",
+    "LOREDECK_OPENAI_MODEL": "test-model",
 }
 
 
@@ -37,6 +40,9 @@ def test_database_url_uses_typed_components() -> None:
             "database_name": "loredeck",
             "database_user": "reader@example.com",
             "database_password": "p@ss:/?#[]",
+            "ai_provider": "openai",
+            "openai_api_key": "test-key",
+            "openai_model": "test-model",
         }
     )
 
@@ -101,6 +107,9 @@ def test_jwt_configuration_defaults_and_parsing() -> None:
             "database_password": "change-me",
             "jwt_secret": "test-secret",
             "jwt_access_token_expire_minutes": 15,
+            "ai_provider": "openai",
+            "openai_api_key": "test-key",
+            "openai_model": "test-model",
         }
     )
     assert settings.jwt_secret.get_secret_value() == "test-secret"
@@ -117,6 +126,9 @@ def test_jwt_expiration_must_be_positive() -> None:
                 "database_name": "loredeck",
                 "database_user": "loredeck",
                 "database_password": "change-me",
+                "ai_provider": "openai",
+                "openai_api_key": "test-key",
+                "openai_model": "test-model",
                 "jwt_access_token_expire_minutes": 0,
             }
         )

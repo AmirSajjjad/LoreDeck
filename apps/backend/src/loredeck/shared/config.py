@@ -1,8 +1,10 @@
 from functools import lru_cache
 
-from pydantic import PositiveInt, SecretStr
+from pydantic import NonNegativeInt, PositiveFloat, PositiveInt, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
+
+from loredeck.ai.enums import AIProviderName
 
 
 class Settings(BaseSettings):
@@ -26,6 +28,22 @@ class Settings(BaseSettings):
     jwt_secret: SecretStr = SecretStr("")
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: PositiveInt = 30
+    ai_provider: AIProviderName
+    ai_story_max_characters: PositiveInt = 350
+    ai_summary_max_characters: PositiveInt = 700
+    openai_api_key: SecretStr | None = None
+    openai_model: str | None = None
+    openai_timeout_seconds: PositiveFloat = 30
+    openai_max_retries: NonNegativeInt = 2
+
+    @model_validator(mode="after")
+    def validate_ai_provider_configuration(self) -> "Settings":
+        if self.ai_provider == AIProviderName.OPENAI:
+            if self.openai_api_key is None or not self.openai_api_key.get_secret_value().strip():
+                raise ValueError("OpenAI API key is required when the OpenAI provider is selected")
+            if self.openai_model is None or not self.openai_model.strip():
+                raise ValueError("OpenAI model is required when the OpenAI provider is selected")
+        return self
 
     @property
     def allowed_origins(self) -> list[str]:
