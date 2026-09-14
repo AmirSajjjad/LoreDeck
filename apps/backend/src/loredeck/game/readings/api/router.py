@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from loredeck.ai.dependencies import get_ai_service
+from loredeck.ai.service import AIReadingService
 from loredeck.game.readings.repositories.history import (
     ReadingHistoryRepository,
     SqlAlchemyReadingHistoryRepository,
@@ -19,6 +21,7 @@ from loredeck.game.readings.usecases.create_reading import (
     DrawReadingUseCase,
     InactiveDeckError,
     InsufficientActiveCardsError,
+    ReadingGenerationError,
     ReadingPersistenceError,
 )
 from loredeck.game.readings.usecases.history import (
@@ -35,8 +38,9 @@ router = APIRouter(prefix="/readings", tags=["readings"])
 
 def get_draw_reading_use_case(
     session: Annotated[AsyncSession, Depends(get_db_session)],
+    ai_service: Annotated[AIReadingService, Depends(get_ai_service)],
 ) -> DrawReadingUseCase:
-    return DrawReadingUseCase(SqlAlchemyReadingRepository(session))
+    return DrawReadingUseCase(SqlAlchemyReadingRepository(session), ai_service)
 
 
 def get_reading_history_repository(
@@ -109,6 +113,11 @@ async def create_reading(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Deck does not contain enough active cards",
+        ) from error
+    except ReadingGenerationError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Reading generation is temporarily unavailable",
         ) from error
     except ReadingPersistenceError as error:
         raise HTTPException(

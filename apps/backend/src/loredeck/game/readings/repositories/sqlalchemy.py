@@ -38,6 +38,9 @@ class SqlAlchemyReadingRepository:
         )
         return result.all()
 
+    async def release_selection_transaction(self) -> None:
+        await self._session.rollback()
+
     async def add_history(self, history: NewReadingHistory) -> None:
         self._session.add(
             UserCardHistoryModel(

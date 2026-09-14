@@ -1,6 +1,14 @@
+from typing import Protocol
+
 from loredeck.ai.exceptions import InvalidAIProviderResponseError
 from loredeck.ai.providers.base import AIProvider
 from loredeck.ai.schemas import GeneratedCardStory, GenerateReadingRequest, GenerateReadingResult
+
+
+class AIReadingService(Protocol):
+    """Provider-independent reading generation boundary used by applications."""
+
+    async def generate_reading(self, request: GenerateReadingRequest) -> GenerateReadingResult: ...
 
 
 class AIService:

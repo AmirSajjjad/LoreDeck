@@ -16,6 +16,7 @@ from loredeck.game.readings.usecases.create_reading import (
     InsufficientActiveCardsError,
     Orientation,
     PublicCard,
+    ReadingGenerationError,
     ReadingPersistenceError,
     ReadingPosition,
     ReadingResult,
@@ -79,9 +80,11 @@ class StubDrawReadingUseCase:
                         number=index,
                         image_path=f"cards/{index}.webp",
                     ),
+                    story=f"داستان {index}",
                 )
                 for index, position in enumerate(positions, start=1)
-            )
+            ),
+            summary="جمع‌بندی",
         )
 
 
@@ -116,12 +119,12 @@ def test_create_reading_contract(
     assert response.status_code == 200
     body = cast(dict[str, Any], response.json())
     assert [card["position"] for card in body["cards"]] == positions
-    assert body["summary"] == ""
+    assert body["summary"] == "جمع‌بندی"
     assert use_case.questions == ["A question"]
     assert use_case.user_ids == [None]
     for drawn_card in body["cards"]:
         assert drawn_card["orientation"] == "upright"
-        assert drawn_card["story"] == ""
+        assert drawn_card["story"].startswith("داستان")
         assert set(drawn_card["card"]) == {"title", "description", "number", "image_path"}
 
 
@@ -270,6 +273,7 @@ def test_create_reading_validates_request(client: TestClient, body: dict[str, ob
         (DeckNotFoundError(), 404),
         (InactiveDeckError(), 404),
         (InsufficientActiveCardsError(), 409),
+        (ReadingGenerationError(), 503),
         (ReadingPersistenceError(), 500),
     ],
 )

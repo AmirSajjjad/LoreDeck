@@ -2,6 +2,9 @@ import secrets
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from loredeck.ai.exceptions import AIError
+from loredeck.ai.schemas import AICardInput, GenerateReadingRequest
+from loredeck.ai.service import AIReadingService
 from loredeck.game.readings.repositories.base import NewReadingHistory, ReadingRepository
 from loredeck.shared.models import CardModel
 from loredeck.shared.readings import CardOrientation as Orientation
@@ -23,6 +26,10 @@ class InsufficientActiveCardsError(Exception):
 
 class ReadingPersistenceError(Exception):
     """Raised when an authenticated reading cannot be saved."""
+
+
+class ReadingGenerationError(Exception):
+    """Raised when a complete AI-generated reading cannot be produced."""
 
 
 @dataclass(frozen=True)
@@ -58,8 +65,9 @@ POSITIONS_BY_SPREAD: dict[Spread, tuple[ReadingPosition, ...]] = {
 
 
 class DrawReadingUseCase:
-    def __init__(self, repository: ReadingRepository) -> None:
+    def __init__(self, repository: ReadingRepository, ai_service: AIReadingService) -> None:
         self._repository = repository
+        self._ai_service = ai_service
 
     async def execute(
         self,
@@ -86,11 +94,51 @@ class DrawReadingUseCase:
         if any(card_id not in cards_by_id for card_id in selected_ids):
             raise InsufficientActiveCardsError
 
+        selected_cards = tuple(
+            (
+                card_id,
+                position,
+                Orientation.UPRIGHT,
+                self._to_public_card(cards_by_id[card_id]),
+                dict(cards_by_id[card_id].attributes),
+            )
+            for position, card_id in zip(POSITIONS_BY_SPREAD[spread], selected_ids, strict=True)
+        )
+        await self._repository.release_selection_transaction()
+
+        try:
+            generated = await self._ai_service.generate_reading(
+                GenerateReadingRequest(
+                    question=question,
+                    spread=spread,
+                    cards=[
+                        AICardInput(
+                            card_id=card_id,
+                            position=position,
+                            orientation=orientation,
+                            title=card.title,
+                            description=card.description or "",
+                            attributes=attributes,
+                        )
+                        for card_id, position, orientation, card, attributes in selected_cards
+                    ],
+                )
+            )
+        except AIError as error:
+            raise ReadingGenerationError from error
+
+        stories_by_id = {card.card_id: card.story for card in generated.cards}
         result = ReadingResult(
             cards=tuple(
-                self._to_drawn_card(position, cards_by_id[card_id])
-                for position, card_id in zip(POSITIONS_BY_SPREAD[spread], selected_ids, strict=True)
-            )
+                DrawnCard(
+                    position=position,
+                    orientation=orientation,
+                    card=card,
+                    story=stories_by_id[card_id],
+                )
+                for card_id, position, orientation, card, _ in selected_cards
+            ),
+            summary=generated.summary,
         )
         if user_id is not None:
             await self._save_history(
@@ -142,14 +190,10 @@ class DrawReadingUseCase:
             raise ReadingPersistenceError from error
 
     @staticmethod
-    def _to_drawn_card(position: ReadingPosition, card: CardModel) -> DrawnCard:
-        return DrawnCard(
-            position=position,
-            orientation=Orientation.UPRIGHT,
-            card=PublicCard(
-                title=card.title,
-                description=card.description,
-                number=card.number,
-                image_path=card.image_path,
-            ),
+    def _to_public_card(card: CardModel) -> PublicCard:
+        return PublicCard(
+            title=card.title,
+            description=card.description,
+            number=card.number,
+            image_path=card.image_path,
         )
