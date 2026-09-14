@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import NonNegativeInt, PositiveFloat, PositiveInt, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -6,10 +7,13 @@ from sqlalchemy import URL
 
 from loredeck.ai.enums import AIProviderName
 
+BACKEND_DIRECTORY = Path(__file__).resolve().parents[3]
+ENV_FILE = BACKEND_DIRECTORY / ".env"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_FILE,
         env_prefix="LOREDECK_",
         extra="ignore",
     )
@@ -31,6 +35,7 @@ class Settings(BaseSettings):
     ai_provider: AIProviderName
     ai_story_max_characters: PositiveInt = 350
     ai_summary_max_characters: PositiveInt = 700
+    openai_base_url: str = "https://api.openai.com/v1"
     openai_api_key: SecretStr | None = None
     openai_model: str | None = None
     openai_timeout_seconds: PositiveFloat = 30

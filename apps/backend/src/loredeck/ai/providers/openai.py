@@ -51,6 +51,7 @@ class OpenAIProvider:
     def __init__(
         self,
         *,
+        base_url: str,
         api_key: SecretStr,
         model: str,
         timeout_seconds: float,
@@ -68,8 +69,9 @@ class OpenAIProvider:
             client
             if client is not None
             else AsyncOpenAI(
+                base_url=base_url,
                 api_key=api_key.get_secret_value(),
-                timeout=timeout_seconds,
+                timeout=3000,
                 max_retries=max_retries,
             )
         )
