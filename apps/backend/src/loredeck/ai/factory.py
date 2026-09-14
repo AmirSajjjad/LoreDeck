@@ -16,6 +16,8 @@ def _build_openai_provider(settings: Settings) -> AIProvider:
         model=settings.openai_model,
         timeout_seconds=settings.openai_timeout_seconds,
         max_retries=settings.openai_max_retries,
+        story_max_characters=settings.ai_story_max_characters,
+        summary_max_characters=settings.ai_summary_max_characters,
     )
 
 

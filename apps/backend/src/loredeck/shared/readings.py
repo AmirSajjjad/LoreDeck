@@ -14,3 +14,4 @@ class ReadingPosition(StrEnum):
 
 class CardOrientation(StrEnum):
     UPRIGHT = "upright"
+    REVERSED = "reversed"
