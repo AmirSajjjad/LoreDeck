@@ -25,6 +25,10 @@ endpoint.
 
 ## Setup
 
+See the [project overview](../../README.md) and [agent workflow](../../.agents/README.md).
+The UI is implemented, but live readings require a migrated/seeded backend with valid AI settings;
+follow the [backend setup](../backend/README.md#setup) or [Compose guide](../../deploy/README.md).
+
 Use Node.js `>=24.15.0 <25`, npm, and the committed `package-lock.json`. Run frontend commands from
 `apps/frontend`:
 
@@ -48,6 +52,9 @@ VITE_API_BASE_URL=http://localhost:8000
 
 The production container builds with `/api`; Nginx proxies that path to its environment-backed
 `BACKEND_UPSTREAM`. Never put secrets in Vite variables because they are public browser assets.
+`VITE_API_BASE_URL` is a build-time setting; changing a runtime container variable does not rewrite
+the compiled client. `/static` artwork is served by the backend; the production API base keeps
+backend asset requests behind the proxy.
 
 ## Development and verification
 

@@ -2,8 +2,9 @@
 
 The backend workspace contains the player-facing FastAPI Game API, shared PostgreSQL models and
 database infrastructure, the repository's single Alembic migration history, deterministic card
-seed data, and backend tests. The `admin`, `ai`, and `telegram_bot` namespaces exist as service
-boundaries but do not currently expose runnable applications.
+seed data, and backend tests. `loredeck.ai` implements LLM interpretation used by the Game API;
+it is not a separate server. `admin` and `telegram_bot` remain placeholder namespaces.
+See the [project overview](../../README.md) for the entertainment and learning purpose.
 
 ## Architecture
 
@@ -54,6 +55,13 @@ Edit `.env` for the local database and generate a non-placeholder JWT secret. Th
   `LOREDECK_CORS_ALLOWED_HEADERS`
 - `LOREDECK_JWT_SECRET`, `LOREDECK_JWT_ALGORITHM`,
   `LOREDECK_JWT_ACCESS_TOKEN_EXPIRE_MINUTES`
+- `LOREDECK_AI_PROVIDER=openai`, `LOREDECK_OPENAI_API_KEY`, and `LOREDECK_OPENAI_MODEL`
+
+AI provider, nonblank API key, and model are required by settings validation even when running
+migrations or seeds. The sample leaves key/model empty; supply your own authorized values.
+Settings read this workspace's `.env`; process environment values take precedence.
+Provision a reachable PostgreSQL database/user matching the file before migrating. Compose
+PostgreSQL has no published host port, so it cannot directly serve this host workflow by default.
 
 Comma-separate multiple CORS values. Do not use wildcard origins when credentials are enabled.
 Redis is not configured or required by the current backend.
@@ -122,6 +130,9 @@ uv run pyright
 uv run pytest
 ```
 
+Inspect test fixtures before running infrastructure-dependent tests; tests marked `integration`
+may require external infrastructure. Tests mock AI calls and do not require live provider access.
+
 Run one test file or node first while iterating, for example:
 
 ```bash
@@ -135,8 +146,22 @@ uv run --project apps/backend pre-commit install
 uv run --project apps/backend pre-commit run --all-files
 ```
 
+## AI interpretation
+
+The reading use case selects active cards without replacement, currently upright, and passes their
+attributes, positions, spread, and optional question to `loredeck.ai`. The OpenAI provider generates
+structured stories and a combined summary, which the service validates before returning. Only
+`openai` is registered. Failed generation does not return a fabricated fallback reading.
+Successful authenticated readings are saved; guest readings are not saved to user history.
+
+Optional environment settings in `.env.sample` configure the OpenAI base URL, timeout (30 seconds),
+retries (2), per-card story limit (350 characters), and summary limit (700 characters).
+No model default is configured. Keep credentials private and avoid live provider calls in tests.
+
 ## Container deployment
 
 `Dockerfile` builds the backend independently and runs Uvicorn as a non-root user without reload
 mode. The root Compose stack supplies PostgreSQL settings, gates startup on the one-shot migration,
 and persists database data in a named volume. See the [deployment guide](../../deploy/README.md).
+The checked-in Compose file does not supply required AI settings or seed inputs; use the documented
+local override and explicit seed step before treating it as a runnable complete stack.
