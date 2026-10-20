@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import NonNegativeInt, PositiveFloat, PositiveInt, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -36,6 +37,7 @@ class Settings(BaseSettings):
     ai_story_max_characters: PositiveInt = 350
     ai_summary_max_characters: PositiveInt = 700
     openai_base_url: str = "https://api.openai.com/v1"
+    openai_api_mode: Literal["auto", "responses", "ollama"] = "auto"
     openai_api_key: SecretStr | None = None
     openai_model: str | None = None
     openai_timeout_seconds: PositiveFloat = 30

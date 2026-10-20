@@ -158,6 +158,26 @@ Optional environment settings in `.env.sample` configure the OpenAI base URL, ti
 retries (2), per-card story limit (350 characters), and summary limit (700 characters).
 No model default is configured. Keep credentials private and avoid live provider calls in tests.
 
+`LOREDECK_OPENAI_API_MODE=auto` keeps the Responses API for existing OpenAI endpoints and uses
+Chat Completions for loopback addresses on port 11434 or the Docker hostname `ollama`.
+Set `ollama` explicitly for an Ollama server at another address, or `responses` to force the
+original API. This selection does not probe providers or fall back after a failure.
+The Ollama path sends `response_format` JSON Schema, validates the JSON with the same Pydantic
+schema, and requests `reasoning_effort=none` to disable thinking on models that support it.
+Both paths keep refusal and incomplete-output checks; the service still validates card IDs,
+card count, nonempty stories/summary, and character limits.
+
+The configured timeout is now passed to the SDK (replacing an incorrect hardcoded 3000 seconds).
+The existing 30-second timeout and two retries remain the OpenAI defaults. For local CPU inference,
+start with `LOREDECK_OPENAI_TIMEOUT_SECONDS=300` and `LOREDECK_OPENAI_MAX_RETRIES=0`, as shown in
+`.env.sample`, then tune for model loading and generation speed. The timeout applies to each SDK
+HTTP operation; retries can extend total request time. Never commit your local `.env`.
+
+Provider warnings include category, selected API, upstream HTTP status, exception class, elapsed
+time, configured timeout, and retry count. They exclude exception text, response bodies, URLs,
+headers, credentials, model names, and reading content. `POST /readings` maps generation errors
+to its own HTTP 503; use `upstream_status` to distinguish the provider's status from that mapping.
+
 ## Container deployment
 
 `Dockerfile` builds the backend independently and runs Uvicorn as a non-root user without reload

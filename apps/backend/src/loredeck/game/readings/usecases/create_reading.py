@@ -125,6 +125,9 @@ class DrawReadingUseCase:
                 )
             )
         except AIError as error:
+            print(50*"1")
+            print(error)
+            print(50*"1")
             raise ReadingGenerationError from error
 
         stories_by_id = {card.card_id: card.story for card in generated.cards}

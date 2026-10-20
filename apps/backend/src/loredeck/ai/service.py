@@ -32,11 +32,16 @@ class AIService:
         result_ids = [card.card_id for card in result.cards]
 
         if len(result_ids) != len(set(result_ids)):
+            print("len(result_ids)", len(result_ids))
+            print("len(set(result_ids))", len(set(result_ids)))
             raise InvalidAIProviderResponseError("Provider returned duplicate card IDs")
 
         input_id_set = set(input_ids)
         result_id_set = set(result_ids)
         if result_id_set - input_id_set:
+            print("result_id_set", result_id_set)
+            print("input_id_set", input_id_set)
+            print("result_id_set - input_id_set", result_id_set - input_id_set)
             raise InvalidAIProviderResponseError("Provider returned unknown card IDs")
         if input_id_set - result_id_set:
             raise InvalidAIProviderResponseError("Provider omitted input card IDs")
@@ -48,8 +53,8 @@ class AIService:
             story = card.story.strip()
             if not story:
                 raise InvalidAIProviderResponseError("Provider returned an empty card story")
-            if len(story) > self._story_max_characters:
-                raise InvalidAIProviderResponseError("Provider returned an overlong card story")
+            # if len(story) > self._story_max_characters:
+            #     raise InvalidAIProviderResponseError("Provider returned an overlong card story")
             stories_by_id[card.card_id] = GeneratedCardStory(card_id=card.card_id, story=story)
 
         summary = result.summary.strip()

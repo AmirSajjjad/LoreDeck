@@ -37,6 +37,8 @@ def test_ai_settings_parse_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         "LOREDECK_OPENAI_MODEL": "test-model",
         "LOREDECK_OPENAI_TIMEOUT_SECONDS": "12.5",
         "LOREDECK_OPENAI_MAX_RETRIES": "4",
+        "LOREDECK_OPENAI_API_MODE": "ollama",
+        "LOREDECK_OPENAI_BASE_URL": "http://127.0.0.1:11434/v1",
     }
     for name, value in environment.items():
         monkeypatch.setenv(name, value)
@@ -51,6 +53,8 @@ def test_ai_settings_parse_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.openai_model == "test-model"
     assert settings.openai_timeout_seconds == 12.5
     assert settings.openai_max_retries == 4
+    assert settings.openai_api_mode == "ollama"
+    assert settings.openai_base_url == "http://127.0.0.1:11434/v1"
 
 
 @pytest.mark.parametrize(
@@ -82,6 +86,13 @@ def test_factory_selects_openai_provider() -> None:
 
     assert isinstance(provider, OpenAIProvider)
     assert provider.model == "test-model"
+
+
+def test_invalid_api_mode_is_rejected() -> None:
+    data = settings_data()
+    data["openai_api_mode"] = "unsupported"
+    with pytest.raises(ValidationError):
+        Settings.model_validate(data)
 
 
 def test_factory_rejects_unsupported_provider() -> None:

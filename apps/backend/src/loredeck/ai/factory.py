@@ -13,6 +13,7 @@ def _build_openai_provider(settings: Settings) -> AIProvider:
         raise InvalidAIConfigurationError("OpenAI provider configuration is incomplete")
     return OpenAIProvider(
         base_url=settings.openai_base_url,
+        api_mode=settings.openai_api_mode,
         api_key=settings.openai_api_key,
         model=settings.openai_model,
         timeout_seconds=settings.openai_timeout_seconds,
